@@ -1,0 +1,2 @@
+module DaizuMainHelper
+end

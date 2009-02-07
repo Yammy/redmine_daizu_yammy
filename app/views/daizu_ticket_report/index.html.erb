@@ -1,0 +1,13 @@
+<h2>チケットレポート</h2>
+
+<h3>日</h3>
+<ul>
+<% @users.each do |user| %>
+  <li>
+    <%= user.name %>
+    <%= link_to h('日'), :controller => 'daizu_ticket_report', :action => 'daily', :project_id => project.identifier, :user_id => user.id %>
+    <%= link_to h('週'), :controller => 'daizu_ticket_report', :action => 'weekly', :project_id => project.identifier, :user_id => user.id %>
+    <%= link_to h('月'), :controller => 'daizu_ticket_report', :action => 'monthly', :project_id => project.identifier, :user_id => user.id %>
+  </li>
+<% end %>
+</ul>

@@ -1,0 +1,12 @@
+<h2>大豆</h2>
+
+<ul>
+<% @projects.each do |project| %>
+  <li>
+    <%= project.name %>
+    <%= link_to h('チケットレポート'), :controller => 'daizu_ticket_report', :action => 'index', :project_id => project.identifier %>
+    <%= link_to h('タイムレポート'), :controller => 'daizu_time_report', :action => 'index', :project_id => project.identifier %>
+    <%= link_to h('統計レポート'), :controller => 'daizu_stat_report', :action => 'index', :project_id => project.identifier %>
+  </li>
+<% end %>
+</ul>

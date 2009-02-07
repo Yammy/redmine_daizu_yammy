@@ -1,0 +1,2 @@
+module DaizuTicketReportHelper
+end
