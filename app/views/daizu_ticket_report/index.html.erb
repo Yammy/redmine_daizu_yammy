@@ -35,7 +35,7 @@
   <button type="submit">GO</button>
 <% end %>
 
-<% if @all_issues.size != 0 %>
+<% if @all_issues %>
   <p>[<%= params[:start_date] %>-<%= params[:due_date] %>] <%= params[:assigned_to_id] %>のチケットレポート。</p>
 
   <table class="list issues">
