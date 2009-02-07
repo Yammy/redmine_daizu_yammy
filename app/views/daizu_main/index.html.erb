@@ -1,12 +1,14 @@
-<h2>大豆</h2>
+<h2>大豆 トップページ</h2>
+
+<p>イソフラボーン！</p>
+
+<a href="http://hb.afl.rakuten.co.jp/hgc/0974b0bd.2a680419.0974b0be.cd4dc1c2/?pc=http%3a%2f%2fwww.rakuten.co.jp%2fmameya1923%2f1782707%2f%231438967&m=http%3a%2f%2fm.rakuten.co.jp%2fmameya1923%2fi%2f1438967%2f" target="_blank"><img src="http://hbb.afl.rakuten.co.jp/hgb/?pc=http%3a%2f%2fimage.rakuten.co.jp%2fwshop%2fdata%2fws-mall-img%2fmameya1923%2fimg128%2fimg10234472279.jpeg&m=http%3a%2f%2fimage.rakuten.co.jp%2fwshop%2fdata%2fws-mall-img%2fmameya1923%2fimg64%2fimg10234472279.jpeg" border="0"></a>
 
 <ul>
-<% @projects.each do |project| %>
   <li>
-    <%= project.name %>
-    <%= link_to h('チケットレポート'), :controller => 'daizu_ticket_report', :action => 'index', :project_id => project.identifier %>
-    <%= link_to h('タイムレポート'), :controller => 'daizu_time_report', :action => 'index', :project_id => project.identifier %>
-    <%= link_to h('統計レポート'), :controller => 'daizu_stat_report', :action => 'index', :project_id => project.identifier %>
+    <%= link_to h('チケットレポートを見る'), :controller => 'daizu_ticket_report', :action => 'index' %>
   </li>
-<% end %>
+  <li>
+    <%= link_to h('時間コストを見る'), :controller => 'daizu_time_report', :action => 'index' %>
+  </li>
 </ul>

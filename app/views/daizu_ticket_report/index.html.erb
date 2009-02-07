@@ -1,13 +1,69 @@
-<h2>チケットレポート</h2>
+<script src="/javascripts/calendar/calendar.js" type="text/javascript"></script>
+<script src="/javascripts/calendar/lang/calendar-ja.js" type="text/javascript"></script>
+<script src="/javascripts/calendar/calendar-setup.js" type="text/javascript"></script>
+<link href="/stylesheets/calendar.css" media="screen" rel="stylesheet" type="text/css" />
 
-<h3>日</h3>
-<ul>
-<% @users.each do |user| %>
-  <li>
-    <%= user.name %>
-    <%= link_to h('日'), :controller => 'daizu_ticket_report', :action => 'daily', :project_id => project.identifier, :user_id => user.id %>
-    <%= link_to h('週'), :controller => 'daizu_ticket_report', :action => 'weekly', :project_id => project.identifier, :user_id => user.id %>
-    <%= link_to h('月'), :controller => 'daizu_ticket_report', :action => 'monthly', :project_id => project.identifier, :user_id => user.id %>
-  </li>
+<h2><%= link_to h('大豆トップページ'), :controller => 'daizu_main', :action => 'index' %> ＞ チケットレポート</h2>
+
+<% form_tag({ :controller => 'daizu_ticket_report', :action => 'index' }, :id => 'query_form') do %>
+  <p><label for="issue_assigned_to_id">担当者</label>
+  <select name="assigned_to_id">
+    <% @users.each do |user| %>
+      <option value="<%= user.id %>"><%= user.name %></option>
+    <% end %>
+  </select>
+  </p>
+
+  <p><label for="issue_start_date">開始日</label>
+  <input id="issue_start_date" name="start_date" size="15" type="text" value="<%= params[:start_date] %>" />
+  <img alt="Calendar" class="calendar-trigger" id="issue_start_date_trigger" src="/images/calendar.png" />
+  <script type="text/javascript">
+  //<![CDATA[
+  Calendar.setup({inputField : 'issue_start_date', ifFormat : '%Y-%m-%d', button : 'issue_start_date_trigger' });
+  //]]>
+  </script></p>
+
+  <p><label for="issue_due_date">期限日</label>
+  <input id="issue_due_date" name="due_date" size="15" type="text" value="<%= params[:due_date] %>" />
+  <img alt="Calendar" class="calendar-trigger" id="issue_due_date_trigger" src="/images/calendar.png" />
+  <script type="text/javascript">
+  //<![CDATA[
+  Calendar.setup({inputField : 'issue_due_date', ifFormat : '%Y-%m-%d', button : 'issue_due_date_trigger' });
+  //]]>
+  </script></p>
+  
+  <button type="submit">GO</button>
 <% end %>
-</ul>
+
+<% if @all_issues.size != 0 %>
+  <p>[<%= params[:start_date] %>-<%= params[:due_date] %>] <%= params[:assigned_to_id] %>のチケットレポート。</p>
+
+  <table class="list issues">
+    <tr>
+      <th>プロジェクト</th>
+      <th>トラッカー</th>
+      <th>題名</th>
+      <th>担当者</th>
+      <th>ステータス</th>
+      <th>開始日</th>
+      <th>期限日</th>
+      <th>進捗％</th>
+    </tr>
+
+    <% @all_issues.each do |key, issues| %>
+      <% issues.each do |issue| %>
+        <tr>
+          <td><%= key %></td>
+          <td><%= issue.id %></td>
+          <td><%= issue.subject %></td>
+          <td><%= issue.assigned_to_id %></td>
+          <td><%= issue.status_id  %></td>
+          <td><%= issue.start_date %></td>
+          <td><%= issue.due_date %></td>
+          <td><%= issue.done_ratio %></td>
+        </tr>
+      <% end %>
+    <% end %>
+  </table>
+<% end %>
+
