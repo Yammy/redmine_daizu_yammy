@@ -10,9 +10,6 @@ class DaizuTimeReportController < ApplicationController
 
       # results = {"tracker", [@estimated_hours, @time_entries, @percentages]}
       @results = {}
-      @trackers.each do |tracker|
-        @results[tracker.name] = null
-      end
       
       @estimated_hours = {}
       @time_entries = {}
@@ -28,13 +25,15 @@ class DaizuTimeReportController < ApplicationController
         # TODO per tracker
         
         all_issues.each do |issue|
+
+          # counting estimated_hours.
           if @estimated_hours[project.name]
             @estimated_hours[project.name] += issue.estimated_hours
           else
             @estimated_hours[project.name] = issue.estimated_hours
           end
 
-          # counting time_entries per issue.
+          # counting time_entries.
           time_entry = TimeEntry.find(:all, :conditions => ["issue_id = ?", issue.id])
 
           time_entry.each do |entry|
@@ -47,6 +46,7 @@ class DaizuTimeReportController < ApplicationController
 
         end
 
+        # calculation percentages
         if @estimated_hours[project.name] != 0 && @time_entries[project.name] != 0
           @percentages[project.name] =
             (@time_entries[project.name] / @estimated_hours[project.name]) * 100
