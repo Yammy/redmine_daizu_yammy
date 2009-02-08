@@ -1,5 +1,5 @@
 class DaizuTicketReportController < ApplicationController
-  before_filter :get_param, :get_all_user, :get_target_usr
+  before_filter :init
   
   def index
           
@@ -15,17 +15,13 @@ class DaizuTicketReportController < ApplicationController
     end
   end
 
-  def get_param
+  def init
     @assigned_to_id = params[:assigned_to_id]
     @start_date = params[:start_date]
     @due_date = params[:due_date]
-  end
-  
-  def get_all_user
-    @all_users =  User.find(:all, :conditions => ["status = 1"])
-  end
 
-  def get_target_usr
+    @all_users =  User.find(:all, :conditions => ["status = 1"])
+
     if @assigned_to_id
       @target_user = User.find(:first, :conditions => ["id = ?", @assigned_to_id])
     end

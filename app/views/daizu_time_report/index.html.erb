@@ -27,97 +27,49 @@
   <button type="submit">GO</button>
 <% end %>
 
+<% if @estimated_hours || @time_entries || @percentages %>
 <p>[from:<%= params[:start_date] %> to:<%= params[:due_date] %>] のタイムレポート。</p>
 
-<table class="list">
-  <tr>
-    <th></th>
-    <th>設計作業</th>
-    <th>開発作業</th>
-    <th>テスト作業</th>
-    <th>運用作業</th>
-    <th>間接作業</th>
-    <th>合計</th>
-  </tr>
-  <tr>
-    <th>あああプロジェクト</th>
-    <td>2.0</td>
-    <td>2.0(▲1)</td>
-    <td>2.0</td>
-    <td>2.0(▲1)</td>
-    <td>2.0</td>
-    <td>10.0(-)</td>
-  </tr>
-  <tr>
-    <th>いいいプロジェクト</th>
-    <td>2.0</td>
-    <td>2.0(▲1)</td>
-    <td>2.0</td>
-    <td>2.0(▲1)</td>
-    <td>2.0</td>
-    <td>10.0(▲1)</td>
-  </tr>
-  <tr>
-    <th>合計</th>
-    <td>2.0</td>
-    <td>2.0(▲1)</td>
-    <td>2.0</td>
-    <td>2.0(▲1)</td>
-    <td>2.0</td>
-    <td>10.0(▲1)</td>
-  </tr>
-</table>
+  <table class="list">
+    <tr>
+      <th></th>
+      <% @trackers.each do |tracker| %>
+        <th colspan="3" ><%= tracker.name %></th>
+      <% end %>
+    </tr>
+    <tr>
+      <th></th>
+      <% @trackers.each do |tracker| %>
+        <th>予想</th>
+        <th>実績</th>
+        <th>進捗</th>
+      <% end %>
+    </tr>
+    <% @estimated_hours.each do |key, estimated| %>
+      <tr>
+        <th><%= key %></th>
+        <td><%= estimated %>h</td>
+        <td><%= @time_entries[key] %>h</td>
+        <td>
+          <table class="progress" style="width: 80px;">
+            <tr>
+              <% if @percentages[key] <= 0  %>
+                <td class="todo" style="width:100%;"></td>
+              <% elsif @percentages[key] == 100 %>
+                <td class="closed" style="width:100%;"></td>
+              <% elsif @percentages[key] > 100 %>
+                <td style="width:100%;background-color:red;"></td>
+              <% else %>
+                <td class="closed" style="<%= "width:" + @percentages[key].to_s + "%;" %>"></td>
+                <td class="todo" style="<%= "width:" + (100 - @percentages[key]).to_s + "%;" %>"></td>
+              <% end %>
+            </tr>
+          </table>
+          <p class="pourcent"><%= @percentages[key].to_s %>%</p>
+        </td>
+      </tr>
+    <% end %>
+  </table>
+  
+<% end %>
 
-<table class="list">
-  <tr>
-    <th></th>
-    <th>設計作業</th>
-    <th>開発作業</th>
-    <th>テスト作業</th>
-    <th>運用作業</th>
-    <th>間接作業</th>
-  </tr>
-  <tr>
-    <th>あああプロジェクト</th>
-    <td>10%</td>
-    <td>10%(▲1)</td>
-    <td>10%</td>
-    <td>10%(▲1)</td>
-    <td>10%</td>
-  </tr>
-  <tr>
-    <th>いいいプロジェクト</th>
-    <td>10%</td>
-    <td>10%(▲1)</td>
-    <td>10%</td>
-    <td>10%(▲1)</td>
-    <td>10%</td>
-  </tr>
-  <tr>
-    <th>合計</th>
-    <td>10%</td>
-    <td>10%(▲1)</td>
-    <td>10%</td>
-    <td>10%(▲1)</td>
-    <td>10%</td>
-  </tr>
-</table>
-
-<table class="list">
-  <tr>
-    <th>開発コスト</th>
-    <td>20h(10%)</td>
-  </tr>
-  <tr>
-    <th>運用コスト</th>
-    <td>20h(10%)</td>
-  </tr>
-  <tr>
-    <th>間接コスト</th>
-    <td>20h(10%)</td>
-  </tr>
-  <tr>
-    <th>合計</th>
-    <td>20h(-)</td>
-  </tr>
-</table>
