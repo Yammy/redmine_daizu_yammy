@@ -1,15 +1,33 @@
+<script src="/javascripts/calendar/calendar.js" type="text/javascript"></script>
+<script src="/javascripts/calendar/lang/calendar-ja.js" type="text/javascript"></script>
+<script src="/javascripts/calendar/calendar-setup.js" type="text/javascript"></script>
+<link href="/stylesheets/calendar.css" media="screen" rel="stylesheet" type="text/css" />
+
 <h2><%= link_to h('大豆トップページ'), :controller => 'daizu_main', :action => 'index' %> ＞ タイムレポート</h2>
 
-<form action="">
-  project:<input type="text" value="" /><br />
-  type:<input type="text" value="" /><br />
-  from:<input type="text" value="" /><br />
-  to:<input type="text" value="" /><br />
-  user:<input type="text" value="" /><br />
-  <button type="submit">GO</button>
-</form>
+<% form_tag({ :controller => 'daizu_time_report', :action => 'index' }, :id => 'query_form') do %>
+  <p><label for="issue_start_date">開始日</label>
+  <input id="issue_start_date" name="start_date" size="15" type="text" value="<%= params[:start_date] %>" />
+  <img alt="Calendar" class="calendar-trigger" id="issue_start_date_trigger" src="/images/calendar.png" />
+  <script type="text/javascript">
+  //<![CDATA[
+  Calendar.setup({inputField : 'issue_start_date', ifFormat : '%Y-%m-%d', button : 'issue_start_date_trigger' });
+  //]]>
+  </script></p>
 
-<p>2009/01/01から2009/01/05までのタイムレポート。</p>
+  <p><label for="issue_due_date">期限日</label>
+  <input id="issue_due_date" name="due_date" size="15" type="text" value="<%= params[:due_date] %>" />
+  <img alt="Calendar" class="calendar-trigger" id="issue_due_date_trigger" src="/images/calendar.png" />
+  <script type="text/javascript">
+  //<![CDATA[
+  Calendar.setup({inputField : 'issue_due_date', ifFormat : '%Y-%m-%d', button : 'issue_due_date_trigger' });
+  //]]>
+  </script></p>
+
+  <button type="submit">GO</button>
+<% end %>
+
+<p>[from:<%= params[:start_date] %> to:<%= params[:due_date] %>] のタイムレポート。</p>
 
 <table class="list">
   <tr>

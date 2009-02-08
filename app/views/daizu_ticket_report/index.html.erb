@@ -8,7 +8,7 @@
 <% form_tag({ :controller => 'daizu_ticket_report', :action => 'index' }, :id => 'query_form') do %>
   <p><label for="issue_assigned_to_id">担当者</label>
   <select name="assigned_to_id">
-    <% @users.each do |user| %>
+    <% @all_users.each do |user| %>
       <option value="<%= user.id %>"><%= user.name %></option>
     <% end %>
   </select>
@@ -36,10 +36,11 @@
 <% end %>
 
 <% if @all_issues %>
-  <p>[<%= params[:start_date] %>-<%= params[:due_date] %>] <%= params[:assigned_to_id] %>のチケットレポート。</p>
+  <p>[from:<%= params[:start_date] %> to:<%= params[:due_date] %>] <%= @target_user %>のチケットレポート。</p>
 
   <table class="list issues">
     <tr>
+      <th>ID</th>
       <th>プロジェクト</th>
       <th>トラッカー</th>
       <th>題名</th>
@@ -50,19 +51,32 @@
       <th>進捗％</th>
     </tr>
 
-    <% @all_issues.each do |key, issues| %>
-      <% issues.each do |issue| %>
-        <tr>
-          <td><%= key %></td>
-          <td><%= issue.id %></td>
-          <td><%= issue.subject %></td>
-          <td><%= issue.assigned_to_id %></td>
-          <td><%= issue.status_id  %></td>
-          <td><%= issue.start_date %></td>
-          <td><%= issue.due_date %></td>
-          <td><%= issue.done_ratio %></td>
-        </tr>
-      <% end %>
+    <% @all_issues.each do |issue| %>
+      <tr>
+        <td><%= issue.id %></td>
+        <td><%= Project.find(:first, :conditions => ["id = ?", issue.project_id]) %></td>
+        <td><%= Tracker.find(:first, :conditions => ["id = ?", issue.tracker_id]) %></td>
+        <td><%= issue.subject %></td>
+        <td><%= User.find(:first, :conditions => ["id = ?", issue.assigned_to_id]) %></td>
+        <td><%= IssueStatus.find(:first, :conditions => ["id = ?", issue.status_id])  %></td>
+        <td><%= issue.start_date %></td>
+        <td><%= issue.due_date %></td>
+        <td>
+          <table class="progress" style="width: 80px;">
+            <tr>
+              <% if issue.done_ratio <= 0  %>
+                <td class="todo" style="width:100%;"></td>
+              <% elsif issue.done_ratio >= 100 %>
+                <td class="closed" style="width:100%;"></td>
+              <% else %>
+                <td class="closed" style="<%= "width:" + issue.done_ratio.to_s + "%;" %>"></td>
+                <td class="todo" style="<%= "width:" + (100 - issue.done_ratio.to_i).to_s + "%;" %>"></td>
+              <% end %>
+            </tr>
+          </table>
+          <p class="pourcent"><%= issue.done_ratio.to_s + "%" %></p>
+        </td>
+      </tr>
     <% end %>
   </table>
 <% end %>
