@@ -1,3 +1,7 @@
+require 'logger'
+require 'time_report_detail_v_o'
+require 'time_report_main_v_o'
+
 class DaizuTimeReportController < ApplicationController
   before_filter :init
 
@@ -7,66 +11,90 @@ class DaizuTimeReportController < ApplicationController
 
       # counting per tracker.
       # counting estimated_hours and time_entries and percentage.
-
-      # results = {"tracker", [@estimated_hours, @time_entries, @percentages]}
-      @results = {}
+      @results = []
       
-      @estimated_hours = {}
-      @time_entries = {}
-      @percentages = {}
-
       @projects.each do |project|
         # per project.
-        all_issues =
+        mainvo = TimeReportMainVO.new()
+        mainvo.project_name = project.name
+        @log.debug("project.name = " + project.name)
+        
+        issues =
           Issue.find(:all,
             :conditions => ["start_date >= ? and due_date <= ? and project_id = ?",
               @start_date, @due_date, project.id])
 
-        # TODO per tracker
-        
-        all_issues.each do |issue|
+        mainvo = count_per_tracker(issues, mainvo)
+        mainvo = calc_percentages(mainvo)
 
-          # counting estimated_hours.
-          if @estimated_hours[project.name]
-            @estimated_hours[project.name] += issue.estimated_hours
-          else
-            @estimated_hours[project.name] = issue.estimated_hours
-          end
-
-          # counting time_entries.
-          time_entry = TimeEntry.find(:all, :conditions => ["issue_id = ?", issue.id])
-
-          time_entry.each do |entry|
-            if @time_entries[project.name]
-              @time_entries[project.name] += entry.hours
-            else
-              @time_entries[project.name] = entry.hours
-            end
-          end
-
-        end
-
-        # calculation percentages
-        if @estimated_hours[project.name] != 0 && @time_entries[project.name] != 0
-          @percentages[project.name] =
-            (@time_entries[project.name] / @estimated_hours[project.name]) * 100
-          @percentages[project.name] = @percentages[project.name] * 100
-          @percentages[project.name] = @percentages[project.name].round
-          @percentages[project.name] = @percentages[project.name] / 100
-        else
-          @percentages[project.name] = 0
-        end
+        @results.push(mainvo)
         
       end
     end
   end
 
+  def count_per_tracker(issues, mainvo)
+
+    sumvo = mainvo.get_tracker("合計")
+    
+    # counting per project and per tracker.
+    issues.each do |issue|
+
+      tracker_name = @trakcer_names[issue.tracker_id]
+      @log.debug("tracker_name = " + tracker_name)
+      detailvo = mainvo.get_tracker(tracker_name)
+
+      # counting estimated_hours.
+      detailvo.estimated_hours += issue.estimated_hours
+      sumvo.estimated_hours += issue.estimated_hours
+
+      # counting time_entries.
+      time_entry = TimeEntry.find(:all, :conditions => ["issue_id = ?", issue.id])
+      time_entry.each do |entry|
+        detailvo.actual_performances += entry.hours
+        sumvo.actual_performances += entry.hours
+      end
+
+      mainvo.put_tracker(tracker_name, detailvo)
+    end
+
+    mainvo.put_tracker("合計", sumvo)
+    
+    return mainvo
+  end
+  
+  def calc_percentages(mainvo)
+    mainvo.trackers.each do |key, detailvo|
+      if detailvo.estimated_hours != 0 && detailvo.actual_performances != 0
+        detailvo.percentages =
+         (detailvo.actual_performances / detailvo.estimated_hours) * 100
+         detailvo.percentages = detailvo.percentages * 100
+         detailvo.percentages = detailvo.percentages.round
+         detailvo.percentages = detailvo.percentages / 100
+
+         mainvo.put_tracker(key, detailvo)
+      end
+    end
+
+    return mainvo
+
+  end
+
   def init
+    @log = Logger.new(STDOUT)
+    @log.level = Logger::DEBUG
+
     @start_date = params[:start_date]
     @due_date = params[:due_date]
 
     @projects = Project.find :all
 
     @trackers = Tracker.find(:all)
+    @trakcer_names = {}
+    @trackers.each do |tracker|
+      @trakcer_names[tracker.id] = tracker.name
+    end
+    
+    
   end
 end

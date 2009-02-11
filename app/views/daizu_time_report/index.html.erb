@@ -27,7 +27,7 @@
   <button type="submit">GO</button>
 <% end %>
 
-<% if @estimated_hours || @time_entries || @percentages %>
+<% if @results %>
 <p>[from:<%= params[:start_date] %> to:<%= params[:due_date] %>] のタイムレポート。</p>
 
   <table class="list">
@@ -45,30 +45,32 @@
         <th>進捗</th>
       <% end %>
     </tr>
-    <% @estimated_hours.each do |key, estimated| %>
+    <% @results.each do |result| %>
       <tr>
-        <th><%= key %></th>
-        <td><%= estimated %>h</td>
-        <td><%= @time_entries[key] %>h</td>
-        <td>
-          <table class="progress" style="width: 80px;">
-            <tr>
-              <% if @percentages[key] <= 0  %>
-                <td class="todo" style="width:100%;"></td>
-              <% elsif @percentages[key] == 100 %>
-                <td class="closed" style="width:100%;"></td>
-              <% elsif @percentages[key] > 100 %>
-                <td style="width:100%;background-color:red;"></td>
-              <% else %>
-                <td class="closed" style="<%= "width:" + @percentages[key].to_s + "%;" %>"></td>
-                <td class="todo" style="<%= "width:" + (100 - @percentages[key]).to_s + "%;" %>"></td>
-              <% end %>
-            </tr>
-          </table>
-          <p class="pourcent"><%= @percentages[key].to_s %>%</p>
-        </td>
+        <th><%= result.project_name %></th>
+        <% @trackers.each do |tracker| %>
+          <td><%= result.get_tracker(tracker.name).estimated_hours %></td>
+          <td><%= result.get_tracker(tracker.name).actual_performances %></td>
+          <td>
+            <table class="progress" style="width: 80px;">
+              <tr>
+                <% if result.get_tracker(tracker.name).percentages == 0 %>
+                  <td class="todo" style="width:100%;"></td>
+                <% elsif result.get_tracker(tracker.name).percentages == 100 %>
+                  <td class="closed" style="width:100%;"></td>
+                <% elsif result.get_tracker(tracker.name).percentages > 100 %>
+                  <td style="width:100%;background-color:red;"></td>
+                <% else %>
+                  <td class="closed" style="<%= "width:" + result.get_tracker(tracker.name).percentages.to_s + "%;" %>"></td>
+                  <td class="todo" style="<%= "width:" + (100 - result.get_tracker(tracker.name).percentages).to_s + "%;" %>"></td>
+                <% end %>
+              </tr>
+            </table>
+            <p class="pourcent"><%= result.get_tracker(tracker.name).percentages.to_s %>%</p>
+          </td>
+        <% end %>
       </tr>
-    <% end %>
+     <% end %>
   </table>
   
 <% end %>
