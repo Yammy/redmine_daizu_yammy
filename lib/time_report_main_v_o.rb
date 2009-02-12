@@ -6,7 +6,7 @@ class TimeReportMainVO
     @project_name = ""
 
     #FIXME
-     @trackers = Hash.new()
+    @trackers = Hash.new()
     all_trackers = Tracker.find(:all)
     all_trackers.each do |tracker|
       @trackers[tracker.name] = TimeReportDetailVO.new()

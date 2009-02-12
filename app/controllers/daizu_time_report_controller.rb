@@ -5,6 +5,8 @@ require 'time_report_main_v_o'
 class DaizuTimeReportController < ApplicationController
   before_filter :init
 
+  TRACKER_SUM_STRING = "合計"
+  
   def index
 
     if @start_date && @due_date
@@ -35,8 +37,8 @@ class DaizuTimeReportController < ApplicationController
 
   def count_per_tracker(issues, mainvo)
 
-    sumvo = mainvo.get_tracker("合計")
-    
+    sumvo = mainvo.get_tracker(TRACKER_SUM_STRING)
+
     # counting per project and per tracker.
     issues.each do |issue|
 
@@ -58,12 +60,16 @@ class DaizuTimeReportController < ApplicationController
       mainvo.put_tracker(tracker_name, detailvo)
     end
 
-    mainvo.put_tracker("合計", sumvo)
+    @log.debug("sumvo.estimated_hours = " + sumvo.estimated_hours.to_s)
+    @log.debug("sumvo.actual_performances = " + sumvo.actual_performances.to_s)
+    
+    mainvo.put_tracker(TRACKER_SUM_STRING, sumvo)
     
     return mainvo
   end
   
   def calc_percentages(mainvo)
+
     mainvo.trackers.each do |key, detailvo|
       if detailvo.estimated_hours != 0 && detailvo.actual_performances != 0
         detailvo.percentages =
@@ -72,12 +78,13 @@ class DaizuTimeReportController < ApplicationController
          detailvo.percentages = detailvo.percentages.round
          detailvo.percentages = detailvo.percentages / 100
 
+         @log.debug("key = " + key)
+
          mainvo.put_tracker(key, detailvo)
       end
     end
 
     return mainvo
-
   end
 
   def init
@@ -90,11 +97,11 @@ class DaizuTimeReportController < ApplicationController
     @projects = Project.find :all
 
     @trackers = Tracker.find(:all)
+    @trackers.push(Tracker.new(:name => TRACKER_SUM_STRING))
+    
     @trakcer_names = {}
     @trackers.each do |tracker|
       @trakcer_names[tracker.id] = tracker.name
     end
-    
-    
   end
 end

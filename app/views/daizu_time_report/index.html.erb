@@ -28,7 +28,7 @@
 <% end %>
 
 <% if @results %>
-<p>[from:<%= params[:start_date] %> to:<%= params[:due_date] %>] のタイムレポート。</p>
+  <p>[from:<%= params[:start_date] %> to:<%= params[:due_date] %>] のタイムレポート。</p>
 
   <table class="list">
     <tr>
@@ -52,7 +52,7 @@
           <td><%= result.get_tracker(tracker.name).estimated_hours %></td>
           <td><%= result.get_tracker(tracker.name).actual_performances %></td>
           <td>
-            <table class="progress" style="width: 80px;">
+            <table class="progress" style="width: 40px;">
               <tr>
                 <% if result.get_tracker(tracker.name).percentages == 0 %>
                   <td class="todo" style="width:100%;"></td>
