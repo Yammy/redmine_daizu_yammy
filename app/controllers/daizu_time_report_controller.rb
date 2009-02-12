@@ -12,7 +12,7 @@ class DaizuTimeReportController < ApplicationController
     if @start_date && @due_date
 
       # counting per tracker.
-      # counting estimated_hours and time_entries and percentage.
+      # counting estimated_hours and time_entries and percentages.
       @results = []
       
       @projects.each do |project|
@@ -32,6 +32,10 @@ class DaizuTimeReportController < ApplicationController
         @results.push(mainvo)
         
       end
+
+      all_sumvo = calc_allsum(@results)
+      @results.push(all_sumvo)
+      
     end
   end
 
@@ -43,13 +47,12 @@ class DaizuTimeReportController < ApplicationController
     issues.each do |issue|
 
       tracker_name = @trakcer_names[issue.tracker_id]
-      @log.debug("tracker_name = " + tracker_name)
       detailvo = mainvo.get_tracker(tracker_name)
-
+      
       # counting estimated_hours.
       detailvo.estimated_hours += issue.estimated_hours
       sumvo.estimated_hours += issue.estimated_hours
-
+      
       # counting time_entries.
       time_entry = TimeEntry.find(:all, :conditions => ["issue_id = ?", issue.id])
       time_entry.each do |entry|
@@ -59,9 +62,6 @@ class DaizuTimeReportController < ApplicationController
 
       mainvo.put_tracker(tracker_name, detailvo)
     end
-
-    @log.debug("sumvo.estimated_hours = " + sumvo.estimated_hours.to_s)
-    @log.debug("sumvo.actual_performances = " + sumvo.actual_performances.to_s)
     
     mainvo.put_tracker(TRACKER_SUM_STRING, sumvo)
     
@@ -71,20 +71,48 @@ class DaizuTimeReportController < ApplicationController
   def calc_percentages(mainvo)
 
     mainvo.trackers.each do |key, detailvo|
-      if detailvo.estimated_hours != 0 && detailvo.actual_performances != 0
-        detailvo.percentages =
-         (detailvo.actual_performances / detailvo.estimated_hours) * 100
-         detailvo.percentages = detailvo.percentages * 100
-         detailvo.percentages = detailvo.percentages.round
-         detailvo.percentages = detailvo.percentages / 100
-
-         @log.debug("key = " + key)
-
-         mainvo.put_tracker(key, detailvo)
-      end
+      detailvo.percentages =
+        calc_percentage(detailvo.estimated_hours, detailvo.actual_performances)
+      mainvo.put_tracker(key, detailvo)
     end
 
     return mainvo
+  end
+
+  def calc_percentage(estimated_hours, actual_performances)
+    if estimated_hours != 0 && actual_performances != 0
+      percentage =
+       (actual_performances / estimated_hours) * 100
+       percentage = percentage * 100
+       percentage = percentage.round
+       percentage = percentage / 100
+       return percentage
+    else
+      return 0.0
+    end
+  end
+  
+  def calc_allsum(results)
+
+    sumvo = TimeReportMainVO.new()
+    sumvo.project_name = TRACKER_SUM_STRING
+    
+    results.each do |result|
+      result.trackers.each do |tracker_name, detailvo|
+        detailsumvo = sumvo.get_tracker(tracker_name)
+        detailsumvo.estimated_hours += detailvo.estimated_hours
+        detailsumvo.actual_performances += detailvo.actual_performances
+        sumvo.put_tracker(tracker_name, detailsumvo)
+      end
+    end
+
+    sumvo.trackers.each do |tracker_name, tracker|
+      detailsumvo = sumvo.get_tracker(tracker_name)
+      detailsumvo.percentages =
+        calc_percentage(detailsumvo.estimated_hours, detailsumvo.actual_performances)
+    end
+
+    return sumvo
   end
 
   def init

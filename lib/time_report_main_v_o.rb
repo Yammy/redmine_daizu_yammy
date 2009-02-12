@@ -2,6 +2,9 @@
 # and open the template in the editor.
 
 class TimeReportMainVO
+
+  TRACKER_SUM_STRING = "合計"
+
   def initialize
     @project_name = ""
 
@@ -11,7 +14,7 @@ class TimeReportMainVO
     all_trackers.each do |tracker|
       @trackers[tracker.name] = TimeReportDetailVO.new()
     end
-    @trackers["合計"] = TimeReportDetailVO.new()
+    @trackers[TRACKER_SUM_STRING] = TimeReportDetailVO.new()
   end
 
   def get_tracker(name)
