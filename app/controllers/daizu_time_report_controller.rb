@@ -9,34 +9,41 @@ class DaizuTimeReportController < ApplicationController
   
   def index
 
-    if @start_date && @due_date
+    if @project_id && @start_date && @due_date
 
       # counting per tracker.
       # counting estimated_hours and time_entries and percentages.
       @results = []
-      
-      @projects.each do |project|
-        # per project.
-        mainvo = TimeReportMainVO.new()
-        mainvo.project_name = project.name
-        @log.debug("project.name = " + project.name)
-        
-        issues =
-          Issue.find(:all,
-            :conditions => ["start_date >= ? and due_date <= ? and project_id = ?",
-              @start_date, @due_date, project.id])
 
-        mainvo = count_per_tracker(issues, mainvo)
-        mainvo = calc_percentages(mainvo)
+      if @project_id == "all"
+        @projects.each do |project|
+          calc_per_project(project)
+        end
 
-        @results.push(mainvo)
-        
+        all_sumvo = calc_allsum(@results)
+        @results.push(all_sumvo)
+      else
+        project = Project.find(:first, :conditions => ["id = ?", @project_id])
+        calc_per_project(project)
       end
-
-      all_sumvo = calc_allsum(@results)
-      @results.push(all_sumvo)
       
     end
+  end
+
+  def calc_per_project(project)
+    # per project.
+    mainvo = TimeReportMainVO.new()
+    mainvo.project_name = project.name
+
+    issues =
+      Issue.find(:all,
+        :conditions => ["start_date >= ? and due_date <= ? and project_id = ?",
+          @start_date, @due_date, project.id])
+
+    mainvo = count_per_tracker(issues, mainvo)
+    mainvo = calc_percentages(mainvo)
+
+    @results.push(mainvo)
   end
 
   def count_per_tracker(issues, mainvo)
@@ -119,6 +126,7 @@ class DaizuTimeReportController < ApplicationController
     @log = Logger.new(STDOUT)
     @log.level = Logger::DEBUG
 
+    @project_id = params[:project_id]
     @start_date = params[:start_date]
     @due_date = params[:due_date]
 
