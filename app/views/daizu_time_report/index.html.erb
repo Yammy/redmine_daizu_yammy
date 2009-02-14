@@ -3,18 +3,18 @@
 <script src="/javascripts/calendar/calendar-setup.js" type="text/javascript"></script>
 <link href="/stylesheets/calendar.css" media="screen" rel="stylesheet" type="text/css" />
 
-<h2><%= link_to h('大豆トップページ'), :controller => 'daizu_main', :action => 'index' %> ＞ タイムレポート</h2>
+<h2><%= link_to h(l(:plugin_name) + l(:top_page)), :controller => 'daizu_main', :action => 'index' %> <%= l(:title_arrow) %> <%= l(:time_report) %></h2>
 
 <% form_tag({ :controller => 'daizu_time_report', :action => 'index' }, :id => 'query_form') do %>
-  <p><label for="project_id">プロジェクト</label>
+  <p><label for="project_id"><%= l(:project) %></label>
   <select name="project_id">
-    <option value="all">全てのプロジェクト</option>
+    <option value="all"><%= l(:all_project) %></option>
     <% @projects.each do |project| %>
       <option value="<%= project.id %>"><%= project.name %></option>
     <% end %>
   </select>
   
-  <p><label for="issue_start_date">開始日</label>
+  <p><label for="issue_start_date"><%= l(:start_date) %></label>
   <input id="issue_start_date" name="start_date" size="15" type="text" value="<%= params[:start_date] %>" />
   <img alt="Calendar" class="calendar-trigger" id="issue_start_date_trigger" src="/images/calendar.png" />
   <script type="text/javascript">
@@ -23,7 +23,7 @@
   //]]>
   </script></p>
 
-  <p><label for="issue_due_date">期限日</label>
+  <p><label for="issue_due_date"><%= l(:due_date) %></label>
   <input id="issue_due_date" name="due_date" size="15" type="text" value="<%= params[:due_date] %>" />
   <img alt="Calendar" class="calendar-trigger" id="issue_due_date_trigger" src="/images/calendar.png" />
   <script type="text/javascript">
@@ -36,7 +36,7 @@
 <% end %>
 
 <% if @results %>
-  <p>[from:<%= params[:start_date] %> to:<%= params[:due_date] %>] のタイムレポート。</p>
+  <p>[from:<%= params[:start_date] %> to:<%= params[:due_date] %>]<%= l(:s_time_report) %></p>
 
   <table class="list">
     <tr>
@@ -48,40 +48,42 @@
     <tr>
       <th></th>
       <% @trackers.each do |tracker| %>
-        <th>予想</th>
-        <th>実績</th>
-        <th>進捗</th>
+        <th><%= l(:estimated_hours) %></th>
+        <th><%= l(:actual_performances) %></th>
+        <th><%= l(:progress) %></th>
       <% end %>
     </tr>
-    <tr>
-      <th><%= @results[0].project_name %></th>
-      <% @trackers.each do |tracker| %>
-        <td><%= @results[0].get_tracker(tracker.name).estimated_hours %></td>
-        <td><%= @results[0].get_tracker(tracker.name).actual_performances %></td>
-        <td>
-          <table class="progress" style="width: 40px;">
-            <tr>
-              <% if @results[0].get_tracker(tracker.name).percentages == 0 %>
-                <td class="todo" style="width:100%;"></td>
-              <% elsif @results[0].get_tracker(tracker.name).percentages == 100 %>
-                <td class="closed" style="width:100%;"></td>
-              <% elsif @results[0].get_tracker(tracker.name).percentages > 100 %>
-                <td style="width:100%;background-color:red;"></td>
-              <% else %>
-                <td class="closed" style="<%= "width:" + @results[0].get_tracker(tracker.name).percentages.to_s + "%;" %>"></td>
-                <td class="todo" style="<%= "width:" + (100 - @results[0].get_tracker(tracker.name).percentages).to_s + "%;" %>"></td>
-              <% end %>
-            </tr>
-          </table>
-          <p class="pourcent"><%= @results[0].get_tracker(tracker.name).percentages.to_s %>%</p>
-        </td>
-      <% end %>
-    </tr>
+    <% @results.each do |result| %>
+      <tr>
+        <th><%= result.project_name %></th>
+        <% @trackers.each do |tracker| %>
+          <td><%= result.get_tracker(tracker.name).estimated_hours %></td>
+          <td><%= result.get_tracker(tracker.name).actual_performances %></td>
+          <td>
+            <table class="progress" style="width: 40px;">
+              <tr>
+                <% if result.get_tracker(tracker.name).percentages == 0 %>
+                  <td class="todo" style="width:100%;"></td>
+                <% elsif result.get_tracker(tracker.name).percentages == 100 %>
+                  <td class="closed" style="width:100%;"></td>
+                <% elsif result.get_tracker(tracker.name).percentages > 100 %>
+                  <td style="width:100%;background-color:red;"></td>
+                <% else %>
+                  <td class="closed" style="<%= "width:" + result.get_tracker(tracker.name).percentages.to_s + "%;" %>"></td>
+                  <td class="todo" style="<%= "width:" + (100 - result.get_tracker(tracker.name).percentages).to_s + "%;" %>"></td>
+                <% end %>
+              </tr>
+            </table>
+            <p class="pourcent"><%= result.get_tracker(tracker.name).percentages.to_s %>%</p>
+          </td>
+        <% end %>
+      </tr>
+    <% end %>
   </table>
 
   <% if params[:project_id] != "all" %>
 
-    <h3><%= @results[0].project_name %>の統計情報</h3>
+    <h3><%= @results[0].project_name %><%= l(:stat_info) %></h3>
 
     <!--[if IE]><script src="/plugin_assets/redmine_daizu/javascripts/html5jp/excanvas/excanvas.js" type="text/javascript"></script><![endif]-->
     <script type="text/javascript" src="/plugin_assets/redmine_daizu/javascripts/html5jp/graph/circle.js"></script>
@@ -96,7 +98,7 @@
       if( ! cg ) { return; }
       var items = [
       <% @trackers.each do |tracker| %>
-        <% if tracker.name != "合計" %>
+        <% if tracker.name != l(:sum) %>
           <% if @results[0].get_tracker(tracker.name).actual_performances != 0.0 %>
             ["<%=tracker.name%>", <%= @results[0].get_tracker(tracker.name).actual_performances %>],
           <% end %>
@@ -109,7 +111,7 @@
       if( ! cg ) { return; }
       var items = [
       <% @trackers.each do |tracker| %>
-        <% if tracker.name != "合計" %>
+        <% if tracker.name != l(:sum) %>
           <% if @results[0].get_tracker(tracker.name).estimated_hours != 0.0 %>
             ["<%=tracker.name%>", <%= @results[0].get_tracker(tracker.name).estimated_hours %>],
           <% end %>
@@ -123,28 +125,28 @@
       if( ! lg ) { return; }
       var items = [
       <% @trackers.each do |tracker| %>
-        ["<%=tracker.name%>", <%= @results[2].get_tracker(tracker.name).estimated_hours %>, <%= @results[1].get_tracker(tracker.name).estimated_hours %>, <%= @results[0].get_tracker(tracker.name).estimated_hours %>],
+        ["<%=tracker.name%>", <%= @before_results[1].get_tracker(tracker.name).estimated_hours %>, <%= @before_results[0].get_tracker(tracker.name).estimated_hours %>, <%= @results[0].get_tracker(tracker.name).estimated_hours %>],
       <% end %>
       ];
       var params = {
-        x: ["", "前々期間", "前期間", "今回の期間"],
-        y: ["時間(h)"],
+        x: ["", "<%= l(:bb_period) %>", "<%= l(:b_period) %>", "<%= l(:this_period) %>"],
+        y: ["<%= l(:time) %>"]
       };
       lg.draw(items, params);
 
       var rc = new html5jp.graph.radar("yojitsu");
       if( ! rc ) { return; }
       var items = [
-        ["予想", 
+        ["<%= l(:estimated_hours) %>",
           <% @trackers.each do |tracker| %>
-            <% if tracker.name != "合計" %>
+            <% if tracker.name != l(:sum) %>
               <%= @results[0].get_tracker(tracker.name).estimated_hours %>,
             <% end %>
           <% end %>
         ],
-        ["実績",
+        ["<%= l(:actual_performances) %>",
           <% @trackers.each do |tracker| %>
-            <% if tracker.name != "合計" %>
+            <% if tracker.name != l(:sum) %>
               <%= @results[0].get_tracker(tracker.name).actual_performances %>,
             <% end %>
           <% end %>
@@ -169,24 +171,24 @@
           <table>
             <tr>
               <td>
-                <h4>予想</h4>
+                <h4><%= l(:estimated_hours) %></h4>
                 <div><canvas width="300" height="200" id="yosou"></canvas></div>
               </td>
             </tr>
             <tr>
               <td>
-                <h4>実績</h4>
+                <h4><%= l(:actual_performances) %></h4>
                 <div><canvas width="300" height="200" id="jisseki"></canvas></div>
               </td>
             </tr>
           </table>
         </td>
         <td style="vertical-align:top;">
-          <h4>予想実績レーダー</h4>
+          <h4><%= l(:estimated_and_actual_radar) %></h4>
           <div><canvas width="500" height="400" id="yojitsu"></canvas></div>
         </td>
         <td style="vertical-align:top;">
-          <h4>期間比較</h4>
+          <h4><%= l(:comparing_period) %></h4>
           <div><canvas width="300" height="500" id="hikaku"></canvas></div>
         </td>
       </tr>

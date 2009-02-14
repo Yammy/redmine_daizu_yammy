@@ -7,5 +7,5 @@ Redmine::Plugin.register :redmine_daizu do
   version '0.2.0'
 
   menu :application_menu, :redmine_daizu, { :controller => 'daizu_main', :action => 'index' },
-  :caption => '大豆', :last => true
+  :caption => :plugin_name, :last => true
 end

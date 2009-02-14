@@ -14,11 +14,12 @@ class DaizuTimeReportController < ApplicationController
       # counting per tracker.
       # counting estimated_hours and time_entries and percentages.
       @results = []
+      @before_results = []
 
       if @project_id == "all"
         @projects.each do |project|
           issues = get_issues(project.id, @start_date, @due_date)
-          calc_per_project(project, issues)
+          @results.push(calc_per_project(project, issues))
         end
 
         all_sumvo = calc_allsum(@results)
@@ -26,15 +27,15 @@ class DaizuTimeReportController < ApplicationController
       else
         project = Project.find(:first, :conditions => ["id = ?", @project_id])
         issues = get_issues(project.id, @start_date, @due_date)
-        calc_per_project(project, issues)
+        @results.push(calc_per_project(project, issues))
 
         # before period.
         issues = get_before_issues(project.id, @start_date, @due_date)
-        calc_per_project(project, issues)
+        @before_results.push(calc_per_project(project, issues))
 
         # before before period.
         issues = get_before_before_issues(project.id, @start_date, @due_date)
-        calc_per_project(project, issues)
+        @before_results.push(calc_per_project(project, issues))
       end
       
     end
@@ -48,7 +49,7 @@ class DaizuTimeReportController < ApplicationController
     mainvo = count_per_tracker(issues, mainvo)
     mainvo = calc_percentages(mainvo)
 
-    @results.push(mainvo)
+    return mainvo
   end
 
   def count_per_tracker(issues, mainvo)

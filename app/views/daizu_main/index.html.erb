@@ -1,17 +1,61 @@
-<h2>大豆 トップページ</h2>
+<h2><%=  l(:plugin_name) + l(:top_page) %></h2>
 
-<p>イソフラボーン！</p>
+<p><%= l(:first_message) %></p>
+
+<ul>
+  <li>
+    <%= link_to h(l(:ticket_report) + l(:watch_to)), :controller => 'daizu_ticket_report', :action => 'index' %>
+  </li>
+  <li>
+    <%= link_to h(l(:time_report) + l(:watch_to)), :controller => 'daizu_time_report', :action => 'index' %>
+  </li>
+</ul>
 
 <a href="http://hb.afl.rakuten.co.jp/hgc/0974b0bd.2a680419.0974b0be.cd4dc1c2/?pc=http%3a%2f%2fwww.rakuten.co.jp%2fmameya1923%2f1782707%2f%231438967&m=http%3a%2f%2fm.rakuten.co.jp%2fmameya1923%2fi%2f1438967%2f" target="_blank"><img src="http://hbb.afl.rakuten.co.jp/hgb/?pc=http%3a%2f%2fimage.rakuten.co.jp%2fwshop%2fdata%2fws-mall-img%2fmameya1923%2fimg128%2fimg10234472279.jpeg&m=http%3a%2f%2fimage.rakuten.co.jp%2fwshop%2fdata%2fws-mall-img%2fmameya1923%2fimg64%2fimg10234472279.jpeg" border="0"></a>
 <a href="http://hb.afl.rakuten.co.jp/hgc/097a5155.d7a764e9.097a5156.b745ac3b/?pc=http%3a%2f%2fitem.rakuten.co.jp%2fkyunan%2f100-iridaizu%2f&m=http%3a%2f%2fm.rakuten.co.jp%2fkyunan%2fi%2f10000152%2f" target="_blank"><img src="http://hbb.afl.rakuten.co.jp/hgb/?pc=http%3a%2f%2fthumbnail.image.rakuten.co.jp%2f%400_mall%2fkyunan%2fcabinet%2fmame%2fimg55685937.gif%3f_ex%3d80x80&m=http%3a%2f%2fthumbnail.image.rakuten.co.jp%2f%400_mall%2fkyunan%2fcabinet%2fmame%2fimg55685937.gif%3f_ex%3d64x64" border="0"></a>
 <a href="http://hb.afl.rakuten.co.jp/hgc/097a51c1.9d266254.097a51c2.757d8de7/?pc=http%3a%2f%2fitem.rakuten.co.jp%2fitoufarm%2f10000488%2f&m=http%3a%2f%2fm.rakuten.co.jp%2fitoufarm%2fi%2f10000488%2f" target="_blank"><img src="http://hbb.afl.rakuten.co.jp/hgb/?pc=http%3a%2f%2fthumbnail.image.rakuten.co.jp%2f%400_mall%2fitoufarm%2fcabinet%2fbeen%2fdaizu-up2.jpg%3f_ex%3d80x80&m=http%3a%2f%2fthumbnail.image.rakuten.co.jp%2f%400_mall%2fitoufarm%2fcabinet%2fbeen%2fdaizu-up2.jpg%3f_ex%3d64x64" border="0"></a>
 <a href="http://hb.afl.rakuten.co.jp/hgc/097a5746.f70c3cab.097a5747.5d47091a/?pc=http%3a%2f%2fwww.rakuten.co.jp%2fkita1food%2f1838260%2f%231431477&m=http%3a%2f%2fm.rakuten.co.jp%2fkita1food%2fi%2f1431477%2f" target="_blank"><img src="http://hbb.afl.rakuten.co.jp/hgb/?pc=http%3a%2f%2fimage.rakuten.co.jp%2fwshop%2fdata%2fws-mall-img%2fkita1food%2fimg128%2fimg10084393290.jpeg&m=http%3a%2f%2fimage.rakuten.co.jp%2fwshop%2fdata%2fws-mall-img%2fkita1food%2fimg64%2fimg10084393290.jpeg" border="0"></a>
 
-<ul>
-  <li>
-    <%= link_to h('チケットレポートを見る'), :controller => 'daizu_ticket_report', :action => 'index' %>
-  </li>
-  <li>
-    <%= link_to h('時間コストを見る'), :controller => 'daizu_time_report', :action => 'index' %>
-  </li>
-</ul>
+<hr style="margin-bottom:50px;" />
+
+<h3><%= l(:description) %></h3>
+
+<div style="width:700px;">
+<p>大豆（Daizu)はRedmineのプラグインです。</p>
+<p>過去にTracでタスクを管理していた時に、「これがあれば工数も管理できそう・・・」と
+思いついてからはや数年。Railsの勉強がてらにさくっと作ってみました。（工数：約2人日）</p>
+
+<p>
+大豆は大きく以下の2機能を提供します。
+<ol>
+  <li>時間指定でチケットを検索し一覧表示する機能</li>
+  <li>時間指定でプロジェクトの時間コストを統計表示する機能</li>
+</ol>
+</p>
+
+<h4>チケット検索</h4>
+<p>時間指定でチケットを検索する機能は、Redmineのクエリ機能である程度実現は可能ですが、
+日報、週報、月報となるデータを、簡単に一覧表示することができることができます。</p>
+<p>将来的には、報告書などもRedmineに登録することにより、
+Redmineをナレッジデータベース化することも可能です。</p>
+
+<div style="border:solid black 1px;"><%= image_tag "001.jpg", :plugin => "redmine_daizu" %></div>
+<p>
+<%= link_to h(l(:ticket_report) + l(:watch_to)), :controller => 'daizu_ticket_report', :action => 'index' %>
+</p>
+
+
+<h4>時間コスト統計表示</h4>
+<p>時間コストを統計表示する機能は、これもRedmineのタイムトラッキングをレポート表示すること
+で実現可能なのですが、プロジェクトごと、トラッカーごとのデータを一覧表示し、
+グラフィカルに表示することにより、タイムトラッキングデータから
+プロジェクトの情報を分析するのに役立ちます。</p>
+<p>将来的には、時間に対するコスト概念を加えることにより、
+時間だけでなく、費用まで見越した分析が可能になります。</p>
+
+<div style="border:solid black 1px;"><%= image_tag "002.jpg", :plugin => "redmine_daizu" %></div>
+<p>
+<%= link_to h(l(:time_report) + l(:watch_to)), :controller => 'daizu_time_report', :action => 'index' %>
+</p>
+
+</div>
