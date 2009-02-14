@@ -53,88 +53,145 @@
         <th>進捗</th>
       <% end %>
     </tr>
-    <% @results.each do |result| %>
-      <tr>
-        <th><%= result.project_name %></th>
-        <% @trackers.each do |tracker| %>
-          <td><%= result.get_tracker(tracker.name).estimated_hours %></td>
-          <td><%= result.get_tracker(tracker.name).actual_performances %></td>
-          <td>
-            <table class="progress" style="width: 40px;">
-              <tr>
-                <% if result.get_tracker(tracker.name).percentages == 0 %>
-                  <td class="todo" style="width:100%;"></td>
-                <% elsif result.get_tracker(tracker.name).percentages == 100 %>
-                  <td class="closed" style="width:100%;"></td>
-                <% elsif result.get_tracker(tracker.name).percentages > 100 %>
-                  <td style="width:100%;background-color:red;"></td>
-                <% else %>
-                  <td class="closed" style="<%= "width:" + result.get_tracker(tracker.name).percentages.to_s + "%;" %>"></td>
-                  <td class="todo" style="<%= "width:" + (100 - result.get_tracker(tracker.name).percentages).to_s + "%;" %>"></td>
-                <% end %>
-              </tr>
-            </table>
-            <p class="pourcent"><%= result.get_tracker(tracker.name).percentages.to_s %>%</p>
-          </td>
-        <% end %>
-      </tr>
-     <% end %>
+    <tr>
+      <th><%= @results[0].project_name %></th>
+      <% @trackers.each do |tracker| %>
+        <td><%= @results[0].get_tracker(tracker.name).estimated_hours %></td>
+        <td><%= @results[0].get_tracker(tracker.name).actual_performances %></td>
+        <td>
+          <table class="progress" style="width: 40px;">
+            <tr>
+              <% if @results[0].get_tracker(tracker.name).percentages == 0 %>
+                <td class="todo" style="width:100%;"></td>
+              <% elsif @results[0].get_tracker(tracker.name).percentages == 100 %>
+                <td class="closed" style="width:100%;"></td>
+              <% elsif @results[0].get_tracker(tracker.name).percentages > 100 %>
+                <td style="width:100%;background-color:red;"></td>
+              <% else %>
+                <td class="closed" style="<%= "width:" + @results[0].get_tracker(tracker.name).percentages.to_s + "%;" %>"></td>
+                <td class="todo" style="<%= "width:" + (100 - @results[0].get_tracker(tracker.name).percentages).to_s + "%;" %>"></td>
+              <% end %>
+            </tr>
+          </table>
+          <p class="pourcent"><%= @results[0].get_tracker(tracker.name).percentages.to_s %>%</p>
+        </td>
+      <% end %>
+    </tr>
   </table>
 
   <% if params[:project_id] != "all" %>
 
-    <% @results.each do |result| %>
-      <h3><%= result.project_name %>の統計情報</h3>
-      
-      <!--[if IE]><script src="/plugin_assets/redmine_daizu/javascripts/html5jp/excanvas/excanvas.js" type="text/javascript"></script><![endif]-->
-      <script src="/plugin_assets/redmine_daizu/javascripts/html5jp/graph/circle.js" type="text/javascript"></script>
-      <script type="text/javascript">
-      window.onload = function() {
-        var cg = new html5jp.graph.circle("yosou");
-        if( ! cg ) { return; }
-        var items = [
-        <% @trackers.each do |tracker| %>
-          <% if tracker.name != "合計" %>
-            <% if result.get_tracker(tracker.name).actual_performances != 0.0 %>
-              ["<%=tracker.name%>", <%= result.get_tracker(tracker.name).actual_performances %>],
-            <% end %>
-          <% end %>
-        <% end %>
-        ];
-        cg.draw(items);
+    <h3><%= @results[0].project_name %>の統計情報</h3>
 
-        var cg = new html5jp.graph.circle("jisseki");
-        if( ! cg ) { return; }
-        var items = [
-        <% @trackers.each do |tracker| %>
-          <% if tracker.name != "合計" %>
-            <% if result.get_tracker(tracker.name).estimated_hours != 0.0 %>
-              ["<%=tracker.name%>", <%= result.get_tracker(tracker.name).estimated_hours %>],
-            <% end %>
+    <!--[if IE]><script src="/plugin_assets/redmine_daizu/javascripts/html5jp/excanvas/excanvas.js" type="text/javascript"></script><![endif]-->
+    <script type="text/javascript" src="/plugin_assets/redmine_daizu/javascripts/html5jp/graph/circle.js"></script>
+    <script type="text/javascript" src="/plugin_assets/redmine_daizu/javascripts/html5jp/graph/line.js"></script>
+    <script type="text/javascript" src="/plugin_assets/redmine_daizu/javascripts/html5jp/graph/vbar.js"></script>
+    <script type="text/javascript" src="/plugin_assets/redmine_daizu/javascripts/html5jp/graph/radar.js"></script>
+    <script type="text/javascript">
+    window.onload = function() {
+
+      // Circle
+      var cg = new html5jp.graph.circle("yosou");
+      if( ! cg ) { return; }
+      var items = [
+      <% @trackers.each do |tracker| %>
+        <% if tracker.name != "合計" %>
+          <% if @results[0].get_tracker(tracker.name).actual_performances != 0.0 %>
+            ["<%=tracker.name%>", <%= @results[0].get_tracker(tracker.name).actual_performances %>],
           <% end %>
         <% end %>
-        ];
-        cg.draw(items);
+      <% end %>
+      ];
+      cg.draw(items);
+
+      var cg = new html5jp.graph.circle("jisseki");
+      if( ! cg ) { return; }
+      var items = [
+      <% @trackers.each do |tracker| %>
+        <% if tracker.name != "合計" %>
+          <% if @results[0].get_tracker(tracker.name).estimated_hours != 0.0 %>
+            ["<%=tracker.name%>", <%= @results[0].get_tracker(tracker.name).estimated_hours %>],
+          <% end %>
+        <% end %>
+      <% end %>
+      ];
+      cg.draw(items);
+
+      // Line
+      var lg = new html5jp.graph.line("hikaku");
+      if( ! lg ) { return; }
+      var items = [
+      <% @trackers.each do |tracker| %>
+        ["<%=tracker.name%>", <%= @results[2].get_tracker(tracker.name).estimated_hours %>, <%= @results[1].get_tracker(tracker.name).estimated_hours %>, <%= @results[0].get_tracker(tracker.name).estimated_hours %>],
+      <% end %>
+      ];
+      var params = {
+        x: ["", "前々期間", "前期間", "今回の期間"],
+        y: ["時間(h)"],
       };
-      </script>
-      <table>
-        <tr>
-          <td>
-            <h4>予想</h4>
-            <div>
-              <canvas width="300" height="200" id="yosou"></canvas>
-            </div>
-          </td>
-          <td>
-            <h4>実績</h4>
-            <div>
-              <canvas width="300" height="200" id="jisseki"></canvas>
-            </div>
-          </td>
-        </tr>
-      </table>
+      lg.draw(items, params);
 
-    <% end %>
+      var rc = new html5jp.graph.radar("yojitsu");
+      if( ! rc ) { return; }
+      var items = [
+        ["予想", 
+          <% @trackers.each do |tracker| %>
+            <% if tracker.name != "合計" %>
+              <%= @results[0].get_tracker(tracker.name).estimated_hours %>,
+            <% end %>
+          <% end %>
+        ],
+        ["実績",
+          <% @trackers.each do |tracker| %>
+            <% if tracker.name != "合計" %>
+              <%= @results[0].get_tracker(tracker.name).actual_performances %>,
+            <% end %>
+          <% end %>
+        ],
+      ];
+      var params = {
+        aCap: [
+          <% @trackers.each do |tracker| %>
+            "<%= tracker.name %>",
+          <% end %>
+        ]
+      }
+      rc.draw(items, params);
+
+    };
+    </script>
+    
+    <table>
+      <tr>
+        <td style="vertical-align:top;">
+
+          <table>
+            <tr>
+              <td>
+                <h4>予想</h4>
+                <div><canvas width="300" height="200" id="yosou"></canvas></div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <h4>実績</h4>
+                <div><canvas width="300" height="200" id="jisseki"></canvas></div>
+              </td>
+            </tr>
+          </table>
+        </td>
+        <td style="vertical-align:top;">
+          <h4>予想実績レーダー</h4>
+          <div><canvas width="500" height="400" id="yojitsu"></canvas></div>
+        </td>
+        <td style="vertical-align:top;">
+          <h4>期間比較</h4>
+          <div><canvas width="300" height="500" id="hikaku"></canvas></div>
+        </td>
+      </tr>
+    </table>
+
   <% end %>
 <% end %>
 

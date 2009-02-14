@@ -1,4 +1,4 @@
-require 'logger'
+require 'date'
 require 'time_report_detail_v_o'
 require 'time_report_main_v_o'
 
@@ -17,28 +17,33 @@ class DaizuTimeReportController < ApplicationController
 
       if @project_id == "all"
         @projects.each do |project|
-          calc_per_project(project)
+          issues = get_issues(project.id, @start_date, @due_date)
+          calc_per_project(project, issues)
         end
 
         all_sumvo = calc_allsum(@results)
         @results.push(all_sumvo)
       else
         project = Project.find(:first, :conditions => ["id = ?", @project_id])
-        calc_per_project(project)
+        issues = get_issues(project.id, @start_date, @due_date)
+        calc_per_project(project, issues)
+
+        # before period.
+        issues = get_before_issues(project.id, @start_date, @due_date)
+        calc_per_project(project, issues)
+
+        # before before period.
+        issues = get_before_before_issues(project.id, @start_date, @due_date)
+        calc_per_project(project, issues)
       end
       
     end
   end
 
-  def calc_per_project(project)
+  def calc_per_project(project, issues)
     # per project.
     mainvo = TimeReportMainVO.new()
     mainvo.project_name = project.name
-
-    issues =
-      Issue.find(:all,
-        :conditions => ["start_date >= ? and due_date <= ? and project_id = ?",
-          @start_date, @due_date, project.id])
 
     mainvo = count_per_tracker(issues, mainvo)
     mainvo = calc_percentages(mainvo)
@@ -120,6 +125,32 @@ class DaizuTimeReportController < ApplicationController
     end
 
     return sumvo
+  end
+
+  def get_issues(project_id, start_date, due_date)
+    return Issue.find(:all,
+        :conditions => ["project_id = ? and start_date >= ? and due_date <= ?",
+          project_id, start_date, due_date])
+  end
+
+  def get_before_issues(project_id, start_date, due_date)
+    s = Date.strptime(start_date, "%Y-%m-%d")
+    d = Date.strptime(due_date, "%Y-%m-%d")
+
+    before_start = s - (d - s)
+    before_end = s - 1
+
+    return get_issues(project_id, before_start, before_end)
+  end
+
+  def get_before_before_issues(project_id, start_date, due_date)
+    s = Date.strptime(start_date, "%Y-%m-%d")
+    d = Date.strptime(due_date, "%Y-%m-%d")
+
+    before_start = s - (d - s) - (d - s)
+    before_end = s - (d - s)
+
+    return get_issues(project_id, before_start, before_end)
   end
 
   def init
