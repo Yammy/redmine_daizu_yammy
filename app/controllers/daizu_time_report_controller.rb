@@ -155,8 +155,6 @@ class DaizuTimeReportController < ApplicationController
   end
 
   def init
-    @log = Logger.new(STDOUT)
-    @log.level = Logger::DEBUG
 
     @project_id = params[:project_id]
     @start_date = params[:start_date]

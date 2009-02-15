@@ -3,11 +3,14 @@
 <p><%= l(:first_message) %></p>
 
 <ul>
-  <li>
+  <li style="font-size:60px">
     <%= link_to h(l(:ticket_report) + l(:watch_to)), :controller => 'daizu_ticket_report', :action => 'index' %>
   </li>
-  <li>
+  <li style="font-size:60px">
     <%= link_to h(l(:time_report) + l(:watch_to)), :controller => 'daizu_time_report', :action => 'index' %>
+  </li>
+  <li style="font-size:60px">
+    <%= link_to h(l(:bug_report) + l(:watch_to)), :controller => 'daizu_bug_report', :action => 'index' %>
   </li>
 </ul>
 

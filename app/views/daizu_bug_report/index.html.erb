@@ -1,0 +1,116 @@
+<script src="/javascripts/calendar/calendar.js" type="text/javascript"></script>
+<script src="/javascripts/calendar/lang/calendar-ja.js" type="text/javascript"></script>
+<script src="/javascripts/calendar/calendar-setup.js" type="text/javascript"></script>
+<link href="/stylesheets/calendar.css" media="screen" rel="stylesheet" type="text/css" />
+
+<h2><%= link_to h(l(:plugin_name) + l(:top_page)), :controller => 'daizu_main', :action => 'index' %> <%= l(:title_arrow) %> <%= l(:bug_report) %></h2>
+
+<% form_tag({ :controller => 'daizu_bug_report', :action => 'index' }, :id => 'query_form') do %>
+  <p><label for="project_id"><%= l(:project) %></label>
+  <select name="project_id">
+    <option value="all"><%= l(:all_project) %></option>
+    <% @projects.each do |project| %>
+      <option value="<%= project.id %>"><%= project.name %></option>
+    <% end %>
+  </select>
+
+  <p><label for="issue_start_date"><%= l(:start_date) %></label>
+  <input id="issue_start_date" name="start_date" size="15" type="text" value="<%= params[:start_date] %>" />
+  <img alt="Calendar" class="calendar-trigger" id="issue_start_date_trigger" src="/images/calendar.png" />
+  <script type="text/javascript">
+  //<![CDATA[
+  Calendar.setup({inputField : 'issue_start_date', ifFormat : '%Y-%m-%d', button : 'issue_start_date_trigger' });
+  //]]>
+  </script></p>
+
+  <p><label for="issue_due_date"><%= l(:due_date) %></label>
+  <input id="issue_due_date" name="due_date" size="15" type="text" value="<%= params[:due_date] %>" />
+  <img alt="Calendar" class="calendar-trigger" id="issue_due_date_trigger" src="/images/calendar.png" />
+  <script type="text/javascript">
+  //<![CDATA[
+  Calendar.setup({inputField : 'issue_due_date', ifFormat : '%Y-%m-%d', button : 'issue_due_date_trigger' });
+  //]]>
+  </script></p>
+
+  <button type="submit">GO</button>
+<% end %>
+
+<% if @results %>
+  <p>[from:<%= params[:start_date] %> to:<%= params[:due_date] %>]のバグレポート</p>
+
+  <table class="list">
+    <tr>
+      <th></th>
+      <% @values.each do |key, value| %>
+        <th><%= key %></th>
+      <% end %>
+    </tr>
+    <% @results.each do |result| %>
+      <tr>
+        <th><%= result.project_name %></th>
+        <% @values.each do |key, value| %>
+          <td><%= result.get_value(key) %>件</td>
+        <% end %>
+      </tr>
+    <% end %>
+  </table>
+
+  <% if params[:project_id] != "all" %>
+
+    <h3><%= @results[0].project_name %><%= l(:stat_info) %></h3>
+
+    <!--[if IE]><script src="/plugin_assets/redmine_daizu/javascripts/html5jp/excanvas/excanvas.js" type="text/javascript"></script><![endif]-->
+    <script type="text/javascript" src="/plugin_assets/redmine_daizu/javascripts/html5jp/graph/circle.js"></script>
+    <script type="text/javascript" src="/plugin_assets/redmine_daizu/javascripts/html5jp/graph/line.js"></script>
+    <script type="text/javascript" src="/plugin_assets/redmine_daizu/javascripts/html5jp/graph/vbar.js"></script>
+    <script type="text/javascript" src="/plugin_assets/redmine_daizu/javascripts/html5jp/graph/radar.js"></script>
+    <script type="text/javascript">
+    window.onload = function() {
+
+      // Circle
+      var cg = new html5jp.graph.circle("wariai");
+      if( ! cg ) { return; }
+      var items = [
+      <% @values.each do |key, value| %>
+        <% if key != l(:sum) %>
+          <% if @results[0].get_value(key) != 0.0 %>
+            ["<%=key%>", <%= @results[0].get_value(key) %>],
+          <% end %>
+        <% end %>
+      <% end %>
+      ];
+      cg.draw(items);
+
+      // Line
+      var lg = new html5jp.graph.line("hikaku");
+      if( ! lg ) { return; }
+      var items = [
+      <% @values.each do |key, value| %>
+        ["<%=key%>", <%= @before_results[1].get_value(key) %>, <%= @before_results[0].get_value(key) %>, <%= @results[0].get_value(key) %>],
+      <% end %>
+      ];
+      var params = {
+        x: ["", "<%= l(:bb_period) %>", "<%= l(:b_period) %>", "<%= l(:this_period) %>"],
+        y: ["<%= l(:time) %>"]
+      };
+      lg.draw(items, params);
+    };
+    </script>
+
+    <table>
+      <tr>
+        <td style="vertical-align:top;">
+          <h4>割合</h4>
+          <div><canvas width="300" height="200" id="wariai"></canvas></div>
+        </td>
+        <td style="vertical-align:top;">
+          <h4><%= l(:comparing_period) %></h4>
+          <div><canvas width="700" height="400" id="hikaku"></canvas></div>
+        </td>
+      </tr>
+    </table>
+
+  <% end %>
+
+<% end %>
+
