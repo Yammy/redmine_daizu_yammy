@@ -6,6 +6,6 @@ Redmine::Plugin.register :redmine_daizu do
   description 'This is a Reporting and Statistics plugin for Redmine'
   version '0.4.0'
 
-  menu :application_menu, :redmine_daizu, { :controller => 'daizu_main', :action => 'index' },
-  :caption => :plugin_name, :last => true
+  menu :application_menu, :daizu, { :controller => 'daizu_main', :action => 'index' },
+  :caption => :daizu_name, :last => true
 end
