@@ -9,7 +9,7 @@
   <p><label for="issue_assigned_to_id"><%= l(:issue_assigned) %></label>
   <select name="assigned_to_id">
     <% @all_users.each do |user| %>
-      <option value="<%= user.id %>"><%= user.name %></option>
+      <option value="<%= user.id %>" <%= "selected" if (@assigned_to_id.to_i == user.id.to_i) %>><%= user.name %></option>
     <% end %>
   </select>
   </p>
@@ -33,16 +33,16 @@
   </script></p>
 
   <p>
-  <input type="checkbox" name="disp_end" id="disp_end" value="1" <% print "chekced" if @disp_end  %>/><label for="disp_end">終了したチケットも表示</label>
+  <input type="checkbox" name="disp_end" id="disp_end" value="1" <%= "checked" if @disp_end  %>/><label for="disp_end">終了したチケットも表示</label>
   </p>
   
   <button type="submit">GO</button>
 <% end %>
 
 <% if @all_issues %>
-  <p>[from:<%= params[:start_date] %> to:<%= params[:due_date] %>] 
+  <p>[<%= params[:start_date] %> 〜 <%= params[:due_date] %>] 
   <%= link_to @target_user, {:controller => 'work_time', :action => 'show/cyberwill', :user => @assigned_to_id} %>
-  <%= l(:ticket_report) %></p>
+  <%= l(:ticket_report) %><%= @all_issues.size %>件</p>
 
   <table class="list issues">
     <tr>
