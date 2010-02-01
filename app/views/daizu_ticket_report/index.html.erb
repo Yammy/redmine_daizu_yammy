@@ -3,7 +3,7 @@
 <script src="/javascripts/calendar/calendar-setup.js" type="text/javascript"></script>
 <link href="/stylesheets/calendar.css" media="screen" rel="stylesheet" type="text/css" />
 
-<h2><%= link_to h(l(:daizu_name) + l(:top_page)), :controller => 'daizu_main', :action => 'index' %> <%= l(:title_arrow) %> <%= l(:ticket_report) %></h2>
+<h2><%= link_to h(l(:plugin_name) + l(:top_page)), :controller => 'daizu_main', :action => 'index' %> <%= l(:title_arrow) %> <%= l(:ticket_report) %></h2>
 
 <% form_tag({ :controller => 'daizu_ticket_report', :action => 'index' }, :id => 'query_form') do %>
   <p><label for="issue_assigned_to_id"><%= l(:issue_assigned) %></label>
@@ -31,12 +31,18 @@
   Calendar.setup({inputField : 'issue_due_date', ifFormat : '%Y-%m-%d', button : 'issue_due_date_trigger' });
   //]]>
   </script></p>
+
+  <p>
+  <input type="checkbox" name="disp_end" id="disp_end" value="1" <% print "chekced" if @disp_end  %>/><label for="disp_end">終了したチケットも表示</label>
+  </p>
   
   <button type="submit">GO</button>
 <% end %>
 
 <% if @all_issues %>
-  <p>[from:<%= params[:start_date] %> to:<%= params[:due_date] %>] <%= @target_user %><%= l(:ticket_report) %></p>
+  <p>[from:<%= params[:start_date] %> to:<%= params[:due_date] %>] 
+  <%= link_to @target_user, {:controller => 'work_time', :action => 'show/cyberwill', :user => @assigned_to_id} %>
+  <%= l(:ticket_report) %></p>
 
   <table class="list issues">
     <tr>
@@ -48,19 +54,28 @@
       <th><%= l(:status) %></th>
       <th><%= l(:start_date) %></th>
       <th><%= l(:due_date) %></th>
+      <th><%= l(:real_start_date) %></th>
+      <th><%= l(:real_due_date) %></th>
+      <th><%= l(:estimated_hours) %></th>
+      <th><%= l(:work_hour) %></th>
       <th><%= l(:progress) %></th>
+      <th><%= l(:description) %></th>
     </tr>
 
     <% @all_issues.each do |issue| %>
       <tr>
-        <td><%= issue.id %></td>
+        <td><%= link_to issue.id, {:controller => 'issues', :action => 'show', :id => issue.id} %></td>
         <td><%= Project.find(:first, :conditions => ["id = ?", issue.project_id]) %></td>
         <td><%= Tracker.find(:first, :conditions => ["id = ?", issue.tracker_id]) %></td>
-        <td><%= issue.subject %></td>
+        <td><%= link_to issue.subject, {:controller => 'issues', :action => 'show', :id => issue.id} %></td>
         <td><%= User.find(:first, :conditions => ["id = ?", issue.assigned_to_id]) %></td>
         <td><%= IssueStatus.find(:first, :conditions => ["id = ?", issue.status_id])  %></td>
         <td><%= issue.start_date %></td>
         <td><%= issue.due_date %></td>
+        <td><%= issue.real_start_date %></td>
+        <td><%= issue.real_due_date %></td>
+        <td><%= issue.estimated_hours %></td>
+        <td><%= issue.work_hour %></td>
         <td>
           <table class="progress" style="width: 80px;">
             <tr>
@@ -76,6 +91,7 @@
           </table>
           <p class="pourcent"><%= issue.done_ratio.to_s + "%" %></p>
         </td>
+        <td><%= issue.description %></td>
       </tr>
     <% end %>
   </table>
